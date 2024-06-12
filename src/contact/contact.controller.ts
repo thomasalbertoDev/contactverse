@@ -10,6 +10,7 @@ import {
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   Param,
@@ -79,6 +80,20 @@ export class ContactController {
       status: true,
       message: 'Contact updated successfully',
       data: result,
+    };
+  }
+
+  // Delete Contact
+  @Delete('/:contactId')
+  @HttpCode(200)
+  async delete(
+    @AuthDecorator() user: User,
+    @Param('contactId', ParseIntPipe) contactId: number,
+  ): Promise<WebResponse<ContactResponse>> {
+    await this.contactService.delete(user, contactId);
+    return {
+      status: true,
+      message: 'Contact deleted successfully',
     };
   }
 }

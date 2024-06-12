@@ -114,4 +114,26 @@ export class ContactService {
       ...contact,
     };
   }
+
+  // Delete Contact
+  async delete(user: User, contactId: number): Promise<void> {
+    this.logger.debug(`ContactService.delete(${contactId})`);
+
+    const contact = await this.prismaService.contact.findFirst({
+      where: {
+        id: contactId,
+        username: user.username,
+      },
+    });
+
+    if (!contact) {
+      throw new HttpException('Contact not found', 404);
+    }
+
+    await this.prismaService.contact.delete({
+      where: {
+        id: contactId,
+      },
+    });
+  }
 }
