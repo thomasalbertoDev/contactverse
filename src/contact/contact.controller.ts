@@ -2,7 +2,11 @@ import { User } from '@prisma/client';
 import { WebResponse } from '../model/web.model';
 import { AuthDecorator } from '../common/auth.decorator';
 import { ContactService } from './contact.service';
-import { ContactResponse, CreateContactRequest } from '../model/contact.model';
+import {
+  ContactResponse,
+  CreateContactRequest,
+  UpdateContactRequest,
+} from '../model/contact.model';
 import {
   Body,
   Controller,
@@ -11,6 +15,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Put,
 } from '@nestjs/common';
 
 @Controller('/api/contacts')
@@ -57,6 +62,22 @@ export class ContactController {
     return {
       status: true,
       message: 'Contact fetched by id successfully',
+      data: result,
+    };
+  }
+
+  // Update Contact
+  @Put('/:contactId')
+  @HttpCode(200)
+  async update(
+    @AuthDecorator() user: User,
+    @Param('contactId', ParseIntPipe) contactId: number,
+    @Body() request: UpdateContactRequest,
+  ): Promise<WebResponse<ContactResponse>> {
+    const result = await this.contactService.update(user, contactId, request);
+    return {
+      status: true,
+      message: 'Contact updated successfully',
       data: result,
     };
   }
