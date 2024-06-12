@@ -9,6 +9,7 @@ import { HttpException, Inject, Injectable } from '@nestjs/common';
 import {
   LoginUserRequest,
   RegisterUserRequest,
+  UpdateUserRequest,
   UserResponse,
 } from '../model/user.model';
 import { User } from '@prisma/client';
@@ -23,7 +24,7 @@ export class UserService {
 
   // Register User
   async register(request: RegisterUserRequest): Promise<UserResponse> {
-    this.logger.info(`UserService.register(${JSON.stringify(request)})`);
+    this.logger.debug(`UserService.register(${JSON.stringify(request)})`);
     const registerRequest = this.validationService.validate(
       UserValidation.REGISTER,
       request,
@@ -52,7 +53,7 @@ export class UserService {
 
   // Login User
   async login(request: LoginUserRequest): Promise<UserResponse> {
-    this.logger.info(`UserService.login(${JSON.stringify(request)})`);
+    this.logger.debug(`UserService.login(${JSON.stringify(request)})`);
     const loginRequest = this.validationService.validate(
       UserValidation.LOGIN,
       request,
@@ -98,6 +99,38 @@ export class UserService {
     return {
       username: user.username,
       name: user.name,
+    };
+  }
+
+  // Update User
+  async update(user: User, request: UpdateUserRequest): Promise<UserResponse> {
+    this.logger.debug(
+      `UserService.update(${JSON.stringify(user)} ,${JSON.stringify(request)})`,
+    );
+
+    const updateRequest = this.validationService.validate(
+      UserValidation.UPDATE,
+      request,
+    );
+
+    if (updateRequest.name) {
+      user.name = updateRequest.name;
+    }
+
+    if (updateRequest.password) {
+      user.password = await bcrypt.hash(updateRequest.password, 10);
+    }
+
+    const result = await this.prismaService.user.update({
+      where: {
+        username: user.username,
+      },
+      data: user,
+    });
+
+    return {
+      name: result.name,
+      username: result.username,
     };
   }
 }

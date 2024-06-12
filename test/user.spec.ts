@@ -121,11 +121,53 @@ describe('User Controller ', () => {
     it('Success Test', async () => {
       const response = await request(app.getHttpServer())
         .get('/api/users/current')
-        .set('authorization', '0e5ff4ef-3d93-4853-aae6-7c4a79e33ce6');
+        .set('authorization', '2aa87a4b-b366-4214-bc13-a94865bf9bba');
 
       expect(response.status).toBe(200);
       expect(response.body.data.username).toBe('xRiot2');
       expect(response.body.data.name).toBeDefined();
+    });
+  });
+
+  describe('PATCH /api/users/current', () => {
+    it('Bad Request Test', async () => {
+      const response = await request(app.getHttpServer())
+        .patch('/api/users/current')
+        .set('authorization', '2aa87a4b-b366-4214-bc13-a94865bf9bba')
+        .send({
+          name: '',
+          password: '',
+        });
+
+      logger.info(response.body);
+      expect(response.status).toBe(400);
+      expect(response.body).toBeDefined();
+    });
+
+    it('Success Test', async () => {
+      const response = await request(app.getHttpServer())
+        .patch('/api/users/current')
+        .set('authorization', 'e0cfae0c-5174-4dbf-bc70-acd9382e1d8b')
+        .send({
+          name: 'Thomas Ok',
+        });
+
+      logger.info(response.body);
+      expect(response.status).toBe(200);
+      expect(response.body.data.name).toBeDefined();
+    });
+
+    it('Unauthorized Test', async () => {
+      const response = await request(app.getHttpServer())
+        .patch('/api/users/current')
+        .send({
+          name: 'sdas',
+          password: 'sdasd',
+        });
+
+      logger.info(response.body);
+      expect(response.status).toBe(401);
+      expect(response.error).toBeDefined();
     });
   });
 });
