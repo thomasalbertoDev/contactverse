@@ -107,4 +107,25 @@ describe('User Controller ', () => {
       expect(response.error).toBeDefined();
     });
   });
+
+  describe('GET /api/users/current', () => {
+    it('Unauthorized Test', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/api/users/current')
+        .set('authorization', 'wrong token');
+
+      expect(response.status).toBe(401);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it('Success Test', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/api/users/current')
+        .set('authorization', '0e5ff4ef-3d93-4853-aae6-7c4a79e33ce6');
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.username).toBe('xRiot2');
+      expect(response.body.data.name).toBeDefined();
+    });
+  });
 });

@@ -11,6 +11,7 @@ import {
   RegisterUserRequest,
   UserResponse,
 } from '../model/user.model';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class UserService {
@@ -89,6 +90,14 @@ export class UserService {
       username: user.username,
       name: user.name,
       token: user.token,
+    };
+  }
+
+  // Get User
+  async get(user: User): Promise<UserResponse> {
+    return {
+      username: user.username,
+      name: user.name,
     };
   }
 }
