@@ -14,6 +14,8 @@ export class UserController {
   ): Promise<WebResponse<UserResponse>> {
     const result = await this.userService.register(request);
     return {
+      status: true,
+      message: 'User registered successfully',
       data: result,
     };
   }
