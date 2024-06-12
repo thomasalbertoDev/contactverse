@@ -2,7 +2,15 @@ import { User } from '@prisma/client';
 import { WebResponse } from '../model/web.model';
 import { UserService } from './user.service';
 import { AuthDecorator } from '../common/auth.decorator';
-import { Body, Controller, Get, HttpCode, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import {
   LoginUserRequest,
   RegisterUserRequest,
@@ -62,6 +70,18 @@ export class UserController {
       status: true,
       message: 'Update user successfully',
       data: result,
+    };
+  }
+
+  @Delete('/current')
+  @HttpCode(200)
+  async logout(
+    @AuthDecorator() user: User,
+  ): Promise<WebResponse<UserResponse>> {
+    await this.userService.logout(user);
+    return {
+      status: true,
+      message: 'Logout user successfully',
     };
   }
 }
