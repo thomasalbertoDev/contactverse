@@ -64,4 +64,47 @@ describe('User Controller ', () => {
       expect(response.body).toBeDefined();
     });
   });
+
+  describe('POST /api/users/login', () => {
+    it('Bad Request Test', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/api/users/login')
+        .send({
+          username: '',
+          password: '',
+        });
+
+      logger.info(response.body);
+      expect(response.status).toBe(400);
+      expect(response.body).toBeDefined();
+    });
+
+    it('Success Test', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/api/users/login')
+        .send({
+          username: 'xRiot2',
+          password: '12345678',
+        });
+
+      logger.info(response.body);
+      expect(response.status).toBe(200);
+      expect(response.body.data.username).toBe('xRiot2');
+      expect(response.body.data.name).toBeDefined();
+      expect(response.body.data.token).toBeDefined();
+    });
+
+    it('Unauthorized Test', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/api/users/login')
+        .send({
+          username: 'sdas',
+          password: 'sdasd',
+        });
+
+      logger.info(response.body);
+      expect(response.status).toBe(401);
+      expect(response.error).toBeDefined();
+    });
+  });
 });
