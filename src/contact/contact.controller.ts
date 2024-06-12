@@ -5,6 +5,7 @@ import { ContactService } from './contact.service';
 import {
   ContactResponse,
   CreateContactRequest,
+  SearchContactRequest,
   UpdateContactRequest,
 } from '../model/contact.model';
 import {
@@ -17,6 +18,7 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 
 @Controller('/api/contacts')
@@ -94,6 +96,32 @@ export class ContactController {
     return {
       status: true,
       message: 'Contact deleted successfully',
+    };
+  }
+
+  // Search Contact
+  @Get()
+  @HttpCode(200)
+  async search(
+    @AuthDecorator() user: User,
+    @Query('name') name?: string,
+    @Query('email') email?: string,
+    @Query('phone') phone?: string,
+    @Query('page', new ParseIntPipe({ optional: true })) page?: number,
+    @Query('size', new ParseIntPipe({ optional: true })) size?: number,
+  ): Promise<WebResponse<ContactResponse[]>> {
+    const request: SearchContactRequest = {
+      name: name,
+      email: email,
+      phone: phone,
+      page: page || 1,
+      size: size || 10,
+    };
+
+    return {
+      status: true,
+      message: 'Search Contacts successfully',
+      data: await this.contactService.search(user, request),
     };
   }
 }
