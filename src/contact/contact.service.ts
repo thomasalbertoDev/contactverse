@@ -3,7 +3,7 @@ import { Logger } from 'winston';
 import { PrismaService } from '../common/prisma.service';
 import { ContactValidation } from './contact.validation';
 import { ValidationService } from '../common/validation.service';
-import { Inject, Injectable } from '@nestjs/common';
+import { HttpException, Inject, Injectable } from '@nestjs/common';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { ContactResponse, CreateContactRequest } from '../model/contact.model';
 
@@ -39,6 +39,40 @@ export class ContactService {
       // last_name: contact.last_name,
       // email: contact.email,
       // phone: contact.phone,
+      ...contact,
+    };
+  }
+
+  // Get All Contacts
+  async getAll(user: User): Promise<ContactResponse[]> {
+    this.logger.debug(`ContactService.findAll()`);
+    const contacts = await this.prismaService.contact.findMany({
+      where: {
+        username: user.username,
+      },
+    });
+
+    return contacts.map((contact) => {
+      return {
+        ...contact,
+      };
+    });
+  }
+
+  // Get Contact By Id
+  async getById(user: User, contactId: number): Promise<ContactResponse> {
+    const contact = await this.prismaService.contact.findFirst({
+      where: {
+        id: contactId,
+        username: user.username,
+      },
+    });
+
+    if (!contact) {
+      throw new HttpException('Contact not found', 404);
+    }
+
+    return {
       ...contact,
     };
   }
