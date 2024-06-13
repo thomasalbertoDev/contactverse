@@ -175,4 +175,24 @@ export class AddressService {
       },
     });
   }
+
+  // List address
+  async list(user: User, contactId: number): Promise<AddressResponse[]> {
+    const checkContactExist = await this.prismaService.contact.findUnique({
+      where: {
+        username: user.username,
+        id: contactId,
+      },
+    });
+
+    if (!checkContactExist) {
+      throw new HttpException('Contact not found', 404);
+    }
+
+    return await this.prismaService.address.findMany({
+      where: {
+        contact_id: contactId,
+      },
+    });
+  }
 }

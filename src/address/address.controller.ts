@@ -100,4 +100,19 @@ export class AddressController {
       message: 'Address deleted successfully',
     };
   }
+
+  // List addresses
+  @Get()
+  @HttpCode(200)
+  async list(
+    @AuthDecorator() user: User,
+    @Param('contactId', ParseIntPipe) contactId: number,
+  ): Promise<WebResponse<AddressResponse[]>> {
+    const result = await this.addressService.list(user, contactId);
+    return {
+      status: true,
+      message: 'Address list successfully',
+      data: result,
+    };
+  }
 }
