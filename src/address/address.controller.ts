@@ -5,12 +5,17 @@ import { AddressService } from './address.service';
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   Param,
   ParseIntPipe,
   Post,
 } from '@nestjs/common';
-import { AddressResponse, CreateAddressRequest } from 'src/model/address.model';
+import {
+  AddressResponse,
+  CreateAddressRequest,
+  GetAddressRequest,
+} from 'src/model/address.model';
 
 @Controller('/api/contacts/:contactId/address')
 export class AddressController {
@@ -29,6 +34,27 @@ export class AddressController {
     return {
       status: true,
       message: 'Address created successfully',
+      data: result,
+    };
+  }
+
+  // Get an address
+  @Get('/:addressId')
+  @HttpCode(201)
+  async get(
+    @AuthDecorator() user: User,
+    @Param('contactId', ParseIntPipe) contactId: number,
+    @Param('addressId', ParseIntPipe) addressId: number,
+  ): Promise<WebResponse<AddressResponse>> {
+    const request: GetAddressRequest = {
+      contact_id: contactId,
+      address_id: addressId,
+    };
+
+    const result = await this.addressService.get(user, request);
+    return {
+      status: true,
+      message: 'Address Get successfully',
       data: result,
     };
   }
