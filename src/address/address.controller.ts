@@ -10,11 +10,13 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Put,
 } from '@nestjs/common';
 import {
   AddressResponse,
   CreateAddressRequest,
   GetAddressRequest,
+  UpdateAddressRequest,
 } from 'src/model/address.model';
 
 @Controller('/api/contacts/:contactId/address')
@@ -55,6 +57,25 @@ export class AddressController {
     return {
       status: true,
       message: 'Address Get successfully',
+      data: result,
+    };
+  }
+
+  // Update an address
+  @Put('/:addressId')
+  @HttpCode(200)
+  async update(
+    @AuthDecorator() user: User,
+    @Param('contactId', ParseIntPipe) contactId: number,
+    @Param('addressId', ParseIntPipe) addressId: number,
+    @Body() request: UpdateAddressRequest,
+  ): Promise<WebResponse<AddressResponse>> {
+    request.contact_id = contactId;
+    request.id = addressId;
+    const result = await this.addressService.update(user, request);
+    return {
+      status: true,
+      message: 'Address updated successfully',
       data: result,
     };
   }
