@@ -8,6 +8,7 @@ import { HttpException, Inject, Injectable } from '@nestjs/common';
 import {
   AddressResponse,
   CreateAddressRequest,
+  DeleteAddressRequest,
   GetAddressRequest,
   UpdateAddressRequest,
 } from '../model/address.model';
@@ -130,5 +131,48 @@ export class AddressService {
     return {
       ...updateAddress,
     };
+  }
+
+  // Delete address
+  async delete(
+    user: User,
+    request: DeleteAddressRequest,
+  ): Promise<AddressResponse> {
+    const deleteRequest: DeleteAddressRequest = this.validationService.validate(
+      AddressValidation.DELETE,
+      request,
+    );
+
+    // Check if contact exist
+    const checkContactExist = await this.prismaService.contact.findUnique({
+      where: {
+        username: user.username,
+        id: deleteRequest.contact_id,
+      },
+    });
+
+    if (!checkContactExist) {
+      throw new HttpException('Contact not found', 404);
+    }
+
+    // Check if address exist
+    const address = await this.prismaService.address.findUnique({
+      where: {
+        id: deleteRequest.address_id,
+        contact_id: deleteRequest.contact_id,
+      },
+    });
+
+    if (!address) {
+      throw new HttpException('Address not found', 404);
+    }
+
+    // Delete address
+    return await this.prismaService.address.delete({
+      where: {
+        id: address.id,
+        contact_id: address.contact_id,
+      },
+    });
   }
 }

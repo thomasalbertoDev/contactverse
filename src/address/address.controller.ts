@@ -5,6 +5,7 @@ import { AddressService } from './address.service';
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   Param,
@@ -15,6 +16,7 @@ import {
 import {
   AddressResponse,
   CreateAddressRequest,
+  DeleteAddressRequest,
   GetAddressRequest,
   UpdateAddressRequest,
 } from 'src/model/address.model';
@@ -77,6 +79,25 @@ export class AddressController {
       status: true,
       message: 'Address updated successfully',
       data: result,
+    };
+  }
+
+  // Delete an address
+  @Delete('/:addressId')
+  @HttpCode(200)
+  async delete(
+    @AuthDecorator() user: User,
+    @Param('contactId', ParseIntPipe) contactId: number,
+    @Param('addressId', ParseIntPipe) addressId: number,
+  ): Promise<WebResponse<AddressResponse>> {
+    const request: DeleteAddressRequest = {
+      contact_id: contactId,
+      address_id: addressId,
+    };
+    await this.addressService.delete(user, request);
+    return {
+      status: true,
+      message: 'Address deleted successfully',
     };
   }
 }
